@@ -1,0 +1,169 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Alarm Clock</title>
+    <style>
+        body,div {
+            margin:0;
+            padding: 0;
+            background: linear-gradient(120deg,rgb(241, 241, 121),rgb(0, 136, 118));
+        }
+        #container {
+           
+            background: mintcream;
+            text-align: center;
+            line-height: 210px;
+            border-radius: 20px;
+            width:500px;
+            height: 220px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%,-50%);
+        }
+        button {
+            width: 100px;
+            height:30px;
+            transition: .5s;
+            background:white;
+            color: #151719;
+            outline: none;
+            border-radius: 10px;
+            margin-left: 20px;
+        }
+        #alarmTime {
+            font-family: Minecraft;
+            font-size: medium;
+         border:none;
+         background: none;
+         outline: none;
+         height:30px;
+         border-bottom:1px solid gray;
+
+        }
+        button:hover {
+            opacity: 1;
+            color: white;
+            transition: .5s;
+            background:linear-gradient(120deg,rgb(241, 241, 121),rgb(0, 136, 118));   
+        }
+        button:focus {
+            opacity: 1;
+            color: white;
+            transition: .5s;
+            background:linear-gradient(121deg,rgb(241, 241, 121),rgb(0, 136, 118));   
+        }
+        #alarm-Manager {
+            position: absolute;
+            left: 20%;
+            top:30%;
+            background: none;
+        }
+        #message {
+            line-height: 0;
+            display: inline-block;
+            position: absolute;
+            background: white;
+            height: 10px;
+            top:90%;
+            left:18%;
+        }
+    </style>
+</head>
+<body>
+     <div id="container">
+       <input type="datetime-local" name="alarmTime" id="alarmTime">
+       <button id='alarm-btn' value="Set Alarm" onclick="SetAlarm(this)">Set Alarm</button>
+       <div id="alarm-Manager" style="display:none;">
+        <button onclick="SnoozeAlarm()">Snooze Alarm</button>
+        <button onclick="StopAlarm()">Stop Alarm</button>
+      </div>
+    </div>
+  
+
+
+
+
+    <script> 
+      var alarmSound = new Audio();
+      alarmSound.src='alarm-sound.mp3';
+      var alarmTimer;
+     //time of load
+     document.getElementById("alarmTime").addEventListener("click", function() {
+    var now = new Date();
+    var offset = now.getTimezoneOffset() * 60000;
+    var adjustedDate = new Date(now.getTime() - offset);
+    var formattedDate = adjustedDate.toISOString().substring(0,16); // For minute precision
+    var datetimeField = document.getElementById("alarmTime");
+    datetimeField.value = formattedDate;
+});
+
+
+
+            
+        function SetAlarm(button)
+        {
+            var ms = document.getElementById('alarmTime').valueAsNumber;
+             //Test if the Specified value is a number
+             
+             if(isNaN(ms))
+             {
+                 alert('Invalid Date');
+                 return;
+                
+             }
+             var alarm = new Date(ms);
+             var alarmTime = new Date(alarm.getUTCFullYear(),alarm.getUTCMonth(),alarm.getUTCDate(),alarm.getUTCHours(),alarm.getUTCMinutes(),alarm.getUTCSeconds());
+             var DiffInMs = alarmTime.getTime() - (new Date()).getTime();
+
+             //test the specified time if > current time
+             if(DiffInMs < 0)
+             {
+                 alert('Specified time is alerady passed!');
+                 return;
+             }
+             alarmTimer=setTimeout(initAlarm, DiffInMs);
+             button.innerText = "Cancel Alarm";
+             button.setAttribute('onclick', 'CancelAlarm(this);');
+             
+         };
+         //Cancel Alarm
+         function CancelAlarm(button)
+         {
+            clearTimeout(alarmTimer);
+            button.innerText = 'Set Alarm';
+            button.setAttribute('onclick', 'SetAlarm(this);');
+
+         }
+
+            //Function for Alarm Starting
+            function initAlarm()
+             {
+                alarmSound.play();
+                
+                document.getElementById('alarm-Manager').style.display = '';
+
+             }
+             //stop Alarm 
+             function StopAlarm()
+             {
+                 alarmSound.pause();
+                 alarmSound.currentTime = 0;
+                 document.getElementById('alarm-Manager').style.display = 'none';
+                 CancelAlarm(document.getElementById('alarm-btn'));
+             }
+             //snooze for 5 minutes
+             function SnoozeAlarm() 
+             {
+                 StopAlarm();
+                 alarmTimer = setTimeout(initAlarm,360000);
+             }
+       
+
+
+
+    </script>
+</body>
+</html>
